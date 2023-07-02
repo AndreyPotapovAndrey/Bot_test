@@ -1,5 +1,6 @@
 import vk_api
-from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
+from vk_api.longpoll import VkLongPoll, VkEventType
+from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from decouple import config
 
 group_token = config('group_token', default='')
@@ -10,22 +11,30 @@ group_id = '221375984'
 def main():
     vk_session = vk_api.VkApi(token=group_token)
     session_api = vk_session.get_api()
-    longpoll = VkBotLongPoll(vk_session, group_id)
+    longpoll = VkLongPoll(vk_session, group_id)
 
-    for event in longpoll.listen():
-        ct = event.messege.text.lower()
-        content = ct.split(" ")
-        user_id = event.message.from_id
-        peer_id = event.message.peer_id
-        user_name_first = session_api.users.get(user_ids=(user_id))[0]['first_name']
-        user_name_last = session_api.users.get(user_ids=(user_id))[0]['last_name']
-        print(f'Кто написал: {user_name_first}{user_name_last}\nЧто написал: {ct}')
+for event in longpoll.listen():
 
-        if content[0][0] == '/':
-            if content[0][1:] == 'ping':
-                session_api.messeges.send(peer_id=peer_id, massage='pong!', random_id=0)
-            if content[0][1:] == 'ping':
-                session_api.messeges.send(peer_id=peer_id, massage='ping!', random_id=0)
+        if event.type == VkEventType.MESSAGE_NEW:
+
+            response = event.message['text'].lower()
+            user_dict_info = users_info(event.message['from_id'], main_process.gr_params, main_process.us_params)
+            # Стартовый запрос
+            if response in ['привет', 'hello', 'start', 'hi', '/', 'ghbdtn']:
+
+                if len(user_dict_info['birth_date'].split('.')) != 3:
+                    write_msg(user_dict_info['vk_id'], f"Хай, {user_dict_info['first_name']}!\n"
+                                                       f" Хочешь познакомиться?\n"
+                                                       f"Сколько тебе лет?"
+                              )
+                    # print(event.obj)
+                else:
+                    age = int((datetime.now() - datetime.strptime(user_dict_info['birth_date'],
+                                                                  "%d.%m.%Y")).days / 365)
+                    user_dict_info['age'] = age
+                    write_msg(event.message['from_id'], f"Хай, {user_dict_info['first_name']}!\n"
+                                                        f" Хочешь познакомиться?",
+                              keyboard_creator('start'))
 
 
 if __name__ == '__main__':
