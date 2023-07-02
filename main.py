@@ -7,16 +7,14 @@ group_token = config('group_token', default='')
 
 group_id = '221375984'
 
+vk_session = vk_api.VkApi(token=group_token)
+session_api = vk_session.get_api()
+longpoll = VkLongPoll(vk_session, group_id)
+
 
 def main():
-    vk_session = vk_api.VkApi(token=group_token)
-    session_api = vk_session.get_api()
-    longpoll = VkLongPoll(vk_session, group_id)
-
-for event in longpoll.listen():
-
+    for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW:
-
             response = event.message['text'].lower()
             user_dict_info = users_info(event.message['from_id'], main_process.gr_params, main_process.us_params)
             # Стартовый запрос
