@@ -1,44 +1,65 @@
+import time
+import datetime
 import vk_api
+import vk
+import random
 from vk_api.longpoll import VkLongPoll, VkEventType
-from vk_api.keyboard import VkKeyboard, VkKeyboardColor
+import json
+import datetime
+import re
+import base
 from decouple import config
+import requests
+from pprint import pprint
+
+group_token = config('group_token', default='')
+
+vk1 = vk_api.VkApi(token=group_token)
 
 
-def main():
-    group_token = config('group_token', default='')
+def write_msg(rand_int, user_id, message):
+    vk1.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': rand_int})
 
-    group_id = '221375984'
 
-    # api = API(group_token)
+# слушаем пул в ВК
+longpoll = VkLongPoll(vk1)
+day_time = datetime.datetime.now()
+day_time = day_time.strftime('%Y-%m-%d %H:%M:%S')
+msg = (day_time + ' ' + 'Дрон к вашим услугам!')
+print(msg)
 
-    vk_session = vk_api.VkApi(token=group_token)
-    session_api = vk_session.get_api()
-    longpoll = VkLongPoll(vk_session, group_id)
-
+# Цикл, который слушает, не пришло ли сообщение
+while True:
+    time.sleep(5)
     for event in longpoll.listen():
-        if event.type == VkEventType.MESSAGE_NEW:
-            response = event.message['text'].lower()
-            user_dict_info = users_info(event.message['from_id'], main_process.gr_params, main_process.us_params)
-            # Стартовый запрос
-            if response in ['привет', 'hello', 'start', 'hi', '/', 'ghbdtn']:
 
-                if len(user_dict_info['birth_date'].split('.')) != 3:
-                    write_msg(user_dict_info['vk_id'], f"Хай, {user_dict_info['first_name']}!\n"
-                                                       f" Хочешь познакомиться?\n"
-                                                       f"Сколько тебе лет?"
-                              )
-                    # print(event.obj)
-                else:
-                    age = int((datetime.now() - datetime.strptime(user_dict_info['birth_date'],
-                                                                  "%d.%m.%Y")).days / 365)
-                    user_dict_info['age'] = age
-                    write_msg(event.message['from_id'], f"Хай, {user_dict_info['first_name']}!\n"
-                                                        f" Хочешь познакомиться?",
-                              keyboard_creator('start'))
+        # Если пришло новое сообщение
+        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
 
+            if event.to_me:
+                request = event.text
+                randint = random.randint(100000000, 900000000)
+                request = request.lower()
+                chat_id = vk1.method('messages.getConversations')
+                # pprint(chat_id)
+                chat_id = chat_id['items']
+                # pprint(chat_id[0]['last_message']['from_id'])
 
-if __name__ == '__main__':
-    main()
+                usr_id = chat_id[0]['last_message']['from_id']  # извлекаем id пользователя
+                # print(usr_id)
+                txt_usr = request  # текст, который ввёл пользователь
+                time_msg = chat_id[0]['last_message']['date']  # извлекаем время сообщения
+                # print(txt_usr)
+
+                """Приводим дату в нормальный вид"""
+                value = datetime.datetime.fromtimestamp(time_msg)
+                time_message = (value.strftime('%Y-%m-%d %H:%M:%S'))
+                # print(time_message, end=" ")
+                # print(txt_usr)
+
+                usr = vk_api.users.get(user_ids=usr_id,
+                                       fields="city, sex, bdate", v=5.89)
+                print(usr)
 
 
 
