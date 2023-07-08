@@ -57,8 +57,9 @@ while True:
                 # print(time_message, end=" ")
                 # print(txt_usr)
 
-                usr = vk_api.users.get(user_ids=usr_id,
-                                       fields="city, sex, bdate", v=5.89)
+                api = vk.API(access_token=group_token)
+                usr = api.users.get(user_ids=usr_id,
+                                    fields="city, sex, bdate", v=5.89)
                 print(usr)
 
 
