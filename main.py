@@ -60,7 +60,40 @@ while True:
                 api = vk.API(access_token=group_token)
                 usr = api.users.get(user_ids=usr_id,
                                     fields="city, sex, bdate", v=5.89)
-                print(usr)
+                # print(usr)
+
+
+                first_name = (usr[0]['first_name'])
+                last_name = (usr[0]['last_name'])
+                fn = (usr[0]['first_name'] + ' ' + usr[0]['last_name'])
+                # print(fn)
+
+                # Если город не указан или скрыт, то напишем: где вы живете?
+                try:
+                    city = (usr[0]['city']['title'])
+                except KeyError:
+                    city = 'В каком городе вы живёте?'
+                # print(city)
+                print(time_message, '[', fn, ']', ':', txt_usr)
+
+                # Произвольный ответ на то, что написали Дрону, из массива со словами
+                rnd_privet = random.choice(base.privet)
+                rnd_poka = random.choice(base.poka)
+                rnd_blag = random.choice(base.blag)
+                rnd_spasib = random.choice(base.spasib)
+
+                # Время ответа бота
+                day_time = datetime.datetime.now()
+                day_time = day_time.strftime('%Y-%m-%d %H:%M:%S')
+
+                # Прверка слов приветствия в полученном сообщении + отправка приветствия
+                for pattern in base.privet:
+                    # print('Поиск "%s" в "%s" ->' % (pattern, request))
+                    if re.search(pattern, request):
+                        print(day_time + ' Ответ от бота для ' + fn + ':')
+                        k = (rnd_privet.title() + ", " + fn + "! Я бот Дрон! Начнём? &#128521;! Будем искать в вашем городе?")
+
+                        write_msg(randint, event.user_id, k)
 
 
 
