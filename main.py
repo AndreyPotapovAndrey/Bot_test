@@ -58,19 +58,19 @@ while True:
                 # print(txt_usr)
 
                 api = vk.API(access_token=group_token)
-                usr = api.users.get(user_ids=usr_id,
+                user = api.users.get(user_ids=usr_id,
                                     fields="city, sex, bdate", v=5.89)
                 # print(usr)
 
 
-                first_name = (usr[0]['first_name'])
-                last_name = (usr[0]['last_name'])
-                fn = (usr[0]['first_name'] + ' ' + usr[0]['last_name'])
+                first_name = (user[0]['first_name'])
+                last_name = (user[0]['last_name'])
+                fn = (user[0]['first_name'] + ' ' + user[0]['last_name'])
                 # print(fn)
 
                 # Если город не указан или скрыт, то напишем: где вы живете?
                 try:
-                    city = (usr[0]['city']['title'])
+                    city = (user[0]['city']['title'])
                 except KeyError:
                     city = 'В каком городе вы живёте?'
                 # print(city)
